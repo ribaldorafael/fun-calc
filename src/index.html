@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fun Calc</title>
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+
+  <!-- ============ THEME SELECT MENU ============ -->
+  <div id="menu" class="menu">
+    <div class="menu-title">
+      <span class="menu-title-text">CHOOSE YOUR CALCULATOR</span>
+      <div class="menu-subtitle">select a style</div>
+    </div>
+    <div class="menu-grid" id="menu-grid"></div>
+  </div>
+
+  <!-- ============ CALCULATOR ============ -->
+  <div id="calc-screen" class="calc-screen hidden">
+    <button class="back-btn" id="back-btn">&larr; BACK</button>
+
+    <!-- Theme overlay layer (themes inject custom elements here) -->
+    <div id="theme-overlay" class="theme-overlay"></div>
+
+    <div class="calculator" id="calculator">
+      <div class="display-container" id="display-container">
+        <div class="display-expression" id="expression"></div>
+        <div class="display-result" id="result">0</div>
+        <div class="mode-indicator" id="mode-indicator">NORMAL</div>
+      </div>
+
+      <div class="controls-bar">
+        <button class="mode-btn active" data-mode="normal" onclick="switchMode('normal')">CALC</button>
+        <button class="mode-btn" data-mode="scientific" onclick="switchMode('scientific')">SCI</button>
+        <button class="mode-btn" data-mode="history" onclick="switchMode('history')">HIST</button>
+      </div>
+
+      <!-- Normal mode -->
+      <div class="keypad" id="keypad-normal">
+        <button class="btn fn"  data-key="ac" onclick="clearAll()">AC</button>
+        <button class="btn fn"  data-key="sign" onclick="toggleSign()">+/-</button>
+        <button class="btn fn"  data-key="pct" onclick="inputPercent()">%</button>
+        <button class="btn op"  data-key="div" onclick="inputOp('/')">&#247;</button>
+
+        <button class="btn num" data-key="7" onclick="inputDigit('7')">7</button>
+        <button class="btn num" data-key="8" onclick="inputDigit('8')">8</button>
+        <button class="btn num" data-key="9" onclick="inputDigit('9')">9</button>
+        <button class="btn op"  data-key="mul" onclick="inputOp('*')">&#215;</button>
+
+        <button class="btn num" data-key="4" onclick="inputDigit('4')">4</button>
+        <button class="btn num" data-key="5" onclick="inputDigit('5')">5</button>
+        <button class="btn num" data-key="6" onclick="inputDigit('6')">6</button>
+        <button class="btn op"  data-key="sub" onclick="inputOp('-')">-</button>
+
+        <button class="btn num" data-key="1" onclick="inputDigit('1')">1</button>
+        <button class="btn num" data-key="2" onclick="inputDigit('2')">2</button>
+        <button class="btn num" data-key="3" onclick="inputDigit('3')">3</button>
+        <button class="btn op"  data-key="add" onclick="inputOp('+')">+</button>
+
+        <button class="btn num zero" data-key="0" onclick="inputDigit('0')">0</button>
+        <button class="btn num" data-key="dot" onclick="inputDot()">.</button>
+        <button class="btn equals" id="btn-equals">=</button>
+      </div>
+
+      <!-- Scientific mode -->
+      <div class="keypad scientific hidden" id="keypad-scientific">
+        <button class="btn sci" onclick="sciFn('sin')">sin</button>
+        <button class="btn sci" onclick="sciFn('cos')">cos</button>
+        <button class="btn sci" onclick="sciFn('tan')">tan</button>
+        <button class="btn sci" onclick="sciFn('sqrt')">&#8730;</button>
+        <button class="btn sci" onclick="sciFn('asin')">sin&#8315;&#185;</button>
+        <button class="btn sci" onclick="sciFn('acos')">cos&#8315;&#185;</button>
+        <button class="btn sci" onclick="sciFn('atan')">tan&#8315;&#185;</button>
+        <button class="btn sci" onclick="sciFn('cbrt')">&#8731;</button>
+        <button class="btn sci" onclick="sciFn('ln')">ln</button>
+        <button class="btn sci" onclick="sciFn('log10')">log</button>
+        <button class="btn sci" onclick="sciFn('log2')">log&#8322;</button>
+        <button class="btn sci" onclick="sciFn('exp')">e&#739;</button>
+        <button class="btn sci" onclick="sciFn('square')">x&#178;</button>
+        <button class="btn sci" onclick="sciFn('cube')">x&#179;</button>
+        <button class="btn sci" onclick="inputOp('^')">x&#696;</button>
+        <button class="btn sci" onclick="sciFn('factorial')">x!</button>
+        <button class="btn sci" onclick="insertConstant('pi')">&#960;</button>
+        <button class="btn sci" onclick="insertConstant('e')">e</button>
+        <button class="btn sci" onclick="inputParen('(')">(</button>
+        <button class="btn sci" onclick="inputParen(')')">)</button>
+        <button class="btn fn"  onclick="clearAll()">AC</button>
+        <button class="btn fn"  onclick="backspace()">&#9003;</button>
+        <button class="btn sci" onclick="sciFn('inv')">1/x</button>
+        <button class="btn equals" id="btn-equals-sci">=</button>
+      </div>
+
+      <!-- History mode -->
+      <div class="history-panel hidden" id="history-panel">
+        <div class="history-list" id="history-list">
+          <div class="history-empty">No calculations yet. Go crunch some numbers!</div>
+        </div>
+        <button class="btn fn history-clear" onclick="clearHistory()">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="particles" class="particles-canvas"></canvas>
+
+  <script src="engine.js?v=3"></script>
+  <script src="audio.js?v=3"></script>
+  <script src="particles.js?v=3"></script>
+  <script src="easter-eggs.js?v=3"></script>
+  <script src="themes.js?v=3"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
