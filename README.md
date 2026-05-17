@@ -37,7 +37,7 @@ Every theme is a **full PixiJS canvas application** — its own UI, its own inte
 
 | Theme | How It Works |
 |---|---|
-| **Matrix** 🟢 | Rain columns of green digits fill the screen. Click a digit and the column **freezes** — the character pops out and **flies to the display**. Operators flash red like a system glitch. Press `=` and all rain accelerates, freezes white, then the answer types out character by character. |
+| **Matrix** 🟢 | **No buttons.** 16 columns of falling characters fill the screen — each column rains a single digit (green), operator (red), `=` (white), or `C` (dim). **Click a column** to grab its character — the column freezes, the character flies to the display. Hover a column to highlight it. Press the `=` column and all rain **accelerates wildly**, freezes white, then the answer types out character by character. |
 | **Odontology** 🦷 | An **open mouth** with gums, lips, and tongue. Upper teeth are digit buttons (molars, canines, incisors — shaped like real teeth). Lower teeth are operators. Click a tooth and it **vibrates with drill sparks**. Results appear on an **X-ray light panel**. Errors cause **cavities** — teeth darken and crack. AC triggers a polish sweep. |
 | **Dragon** 🐉 | A dark cave with a **dragon's treasure hoard**. Gold coins have numbers embossed on them — click one and it **flips** and flies to the display. Operators are **glowing rune stones**. A **cauldron** sits in the center — press it to brew your calculation. Fire **erupts from the cauldron** on equals. Big results trigger a **dragon flyby** across the screen leaving a fire trail. |
 
