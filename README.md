@@ -24,7 +24,7 @@ A wildly unconventional calculator where **each theme is a completely different 
 | Theme | Preview |
 |---|---|
 | Matrix | <img src="docs/screenshots/matrix.png" width="300" /> |
-| Odontology | <img src="docs/screenshots/odonto.png" width="300" /> |
+| Odontology | <img src="docs/screenshots/odontology.png" width="300" /> |
 | Dragon | <img src="docs/screenshots/dragon.png" width="300" /> |
 
 </details>
