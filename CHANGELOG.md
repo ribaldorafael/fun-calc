@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] - 2026-05-17
+
+### Fixed
+- Parentheses bug — `inputParen(')')` followed by `inputOp` would duplicate the operand in the expression
+- Repeated equals bug — pressing `=` twice would crash the parser on the `=` character left in the expression
+
+### Added
+- 60 new JS unit tests (180 total): tokenizer, parentheses, multi-digit numbers, multiple operators, operator chaining from result, repeated equals, dot after eval, negative numbers, history cap, scientific function history, clear after error, backspace edge cases, evaluate on fresh state
+- Added `_parenClosed` flag to engine for correct paren + operator sequencing
+
+### Changed
+- Test badge updated to 254 (180 JS + 74 Rust)
+
 ## [0.2.0] - 2026-05-17
 
 ### Changed

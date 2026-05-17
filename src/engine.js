@@ -190,6 +190,7 @@ class CalculatorEngine {
     this.lastResult = null;  // result of last evaluation (string)
     this.newInput = true;    // true = next digit replaces display
     this.justEvaluated = false; // true = equals was just pressed
+    this._parenClosed = false;  // true = closing paren was just typed
   }
 
   _view() {
@@ -230,11 +231,15 @@ class CalculatorEngine {
     if (this.lastResult !== null && this.newInput) {
       // Chain from previous result: "8 + "
       this.expression = this.lastResult + ' ' + opSymbol(op) + ' ';
+    } else if (this._parenClosed) {
+      // After closing paren, expression already has the operand
+      this.expression += ' ' + opSymbol(op) + ' ';
     } else {
       this.expression += this.display + ' ' + opSymbol(op) + ' ';
     }
     this.newInput = true;
     this.lastResult = null;
+    this._parenClosed = false;
     return this._view();
   }
 
@@ -252,8 +257,11 @@ class CalculatorEngine {
       this.display = '0';
       this.newInput = true;
     } else {
+      // Closing paren: append current display + ')'
+      // Then mark that expression already has the operand
       this.expression += this.display + ')';
       this.newInput = true;
+      this._parenClosed = true; // flag so inputOp doesn't re-append display
     }
     return this._view();
   }
@@ -287,6 +295,11 @@ class CalculatorEngine {
    * Returns { expression, display, result, error? }
    */
   evaluate() {
+    // If we just evaluated and user pressed = again, return last result
+    if (this.justEvaluated && this.lastResult !== null) {
+      return { ...this._view(), result: this.lastResult };
+    }
+
     // Build the raw expression from what's on screen
     const hadPendingOp = this.newInput && this.expression.trim().length > 0;
     const userExpr = hadPendingOp
@@ -295,7 +308,7 @@ class CalculatorEngine {
 
     // Clean for evaluation
     let evalExpr = userExpr.replace(/\u00d7/g, '*').replace(/\u00f7/g, '/').trim();
-    evalExpr = evalExpr.replace(/[+\-*/^%]\s*$/, '').trim(); // strip trailing op
+    evalExpr = evalExpr.replace(/[+\-*/^%=]\s*$/, '').trim(); // strip trailing op or =
 
     if (!evalExpr) return { ...this._view(), result: null };
 

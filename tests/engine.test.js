@@ -428,6 +428,297 @@ section('CalculatorEngine — evaluate after sci fn then new calc');
 }
 
 // ========================================
+// Tokenizer
+// ========================================
+section('tokenize');
+
+{
+  const t = tokenize('42');
+  assertEq(t.length, 1, 'single number: 1 token');
+  assertEq(t[0].type, 'NUMBER', 'token type is NUMBER');
+  assertEq(t[0].value, 42, 'token value is 42');
+}
+{
+  const t = tokenize('2 + 3 * 4');
+  assertEq(t.length, 5, '2+3*4: 5 tokens');
+  assertEq(t[1].type, 'PLUS', 'second token is PLUS');
+  assertEq(t[3].type, 'MULTIPLY', 'fourth token is MULTIPLY');
+}
+{
+  const t = tokenize('(1.5)');
+  assertEq(t.length, 3, '(1.5): 3 tokens');
+  assertEq(t[0].type, 'LPAREN', 'first is LPAREN');
+  assertEq(t[1].value, 1.5, 'number is 1.5');
+  assertEq(t[2].type, 'RPAREN', 'last is RPAREN');
+}
+assertThrows(() => tokenize('2 & 3'), 'invalid char throws');
+{
+  const t = tokenize('');
+  assertEq(t.length, 0, 'empty string: 0 tokens');
+}
+{
+  const t = tokenize('10 % 3');
+  assertEq(t[1].type, 'MODULO', 'modulo token');
+}
+{
+  const t = tokenize('2 ^ 8');
+  assertEq(t[1].type, 'POWER', 'power token');
+}
+
+// ========================================
+// Expression evaluator — additional edge cases
+// ========================================
+section('evaluateExpression — edge cases');
+
+assertEq(evaluateExpression('0'), 0, 'zero');
+assertEq(evaluateExpression('0.5'), 0.5, 'bare decimal');
+assertEq(evaluateExpression('((((1))))'), 1, 'deeply nested parens');
+assertEq(evaluateExpression('2 * (3 + 4) * (5 - 1)'), 56, 'multiple paren groups');
+assertEq(evaluateExpression('10 - 3 - 2'), 5, 'left-to-right subtraction');
+assertEq(evaluateExpression('1000000'), 1000000, 'large number');
+assertEq(evaluateExpression('-(-5)'), 5, 'double negative');
+assertThrows(() => evaluateExpression('10 % 0'), 'modulo by zero throws');
+assertThrows(() => evaluateExpression(')'), 'lone rparen throws');
+assertThrows(() => evaluateExpression('* 5'), 'leading operator throws');
+assertClose(evaluateExpression('2.5 * 4.2'), 10.5, 'decimal multiply');
+assertEq(evaluateExpression('2 ^ 0'), 1, 'power of zero');
+assertEq(evaluateExpression('0 ^ 5'), 0, 'zero to power');
+assertEq(evaluateExpression('1 + 2 + 3 + 4 + 5'), 15, 'many additions');
+
+// ========================================
+// formatNumber — additional edge cases
+// ========================================
+section('formatNumber — edge cases');
+
+assertEq(formatNumber(-0), '0', 'negative zero');
+assertEq(formatNumber(0.1), '0.1', 'small decimal');
+assertEq(formatNumber(0.000001), '0.000001', 'very small');
+assertEq(formatNumber(999999999999999), '999999999999999', 'max safe-ish integer');
+assertEq(formatNumber(-3.14), '-3.14', 'negative decimal');
+assertEq(formatNumber(100.0), '100', 'whole number with .0');
+
+// ========================================
+// CalculatorEngine — parentheses
+// ========================================
+section('CalculatorEngine — parentheses');
+
+{
+  const calc = new CalculatorEngine();
+  // (2 + 3) * 4 = 20
+  calc.inputParen('(');
+  calc.inputDigit('2');
+  calc.inputOp('+');
+  calc.inputDigit('3');
+  calc.inputParen(')');
+  calc.inputOp('*');
+  calc.inputDigit('4');
+  const r = calc.evaluate();
+  assertEq(r.result, '20', '(2+3)*4=20 via parens');
+}
+
+// ========================================
+// CalculatorEngine — multi-digit numbers
+// ========================================
+section('CalculatorEngine — multi-digit');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('1');
+  calc.inputDigit('2');
+  calc.inputDigit('3');
+  calc.inputOp('+');
+  calc.inputDigit('4');
+  calc.inputDigit('5');
+  calc.inputDigit('6');
+  const r = calc.evaluate();
+  assertEq(r.result, '579', '123+456=579');
+}
+
+// ========================================
+// CalculatorEngine — multiple operators
+// ========================================
+section('CalculatorEngine — multiple operators');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  calc.inputOp('+');
+  calc.inputDigit('3');
+  calc.inputOp('-');
+  calc.inputDigit('2');
+  const r = calc.evaluate();
+  assertEq(r.result, '6', '5+3-2=6');
+}
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('2');
+  calc.inputOp('*');
+  calc.inputDigit('3');
+  calc.inputOp('+');
+  calc.inputDigit('4');
+  const r = calc.evaluate();
+  assertEq(r.result, '10', '2*3+4=10 (precedence)');
+}
+
+// ========================================
+// CalculatorEngine — operator right after result
+// ========================================
+section('CalculatorEngine — op after result');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('8');
+  calc.evaluate(); // = 8
+
+  // Now press * 2 = (should be 8 * 2 = 16)
+  calc.inputOp('*');
+  const v = calc._view();
+  assertEq(v.expression, '8 \u00d7 ', 'op chains from result');
+  calc.inputDigit('2');
+  const r = calc.evaluate();
+  assertEq(r.result, '16', '8*2=16 after chain');
+}
+
+// ========================================
+// CalculatorEngine — repeated equals
+// ========================================
+section('CalculatorEngine — repeated equals');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  const r1 = calc.evaluate();
+  assertEq(r1.result, '5', 'first = on bare number');
+  const r2 = calc.evaluate();
+  assertEq(r2.result, '5', 'second = still 5');
+  assert(!r2.error, 'no error on repeated =');
+}
+
+// ========================================
+// CalculatorEngine — dot after eval
+// ========================================
+section('CalculatorEngine — dot after eval');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  calc.evaluate();
+
+  // Type .5 (should start fresh)
+  calc.inputDot();
+  assertEq(calc._view().display, '0.', 'dot after eval starts 0.');
+  assertEq(calc._view().expression, '', 'expression cleared');
+  calc.inputDigit('5');
+  assertEq(calc._view().display, '0.5', 'display shows 0.5');
+}
+
+// ========================================
+// CalculatorEngine — negative number in expression
+// ========================================
+section('CalculatorEngine — negative numbers');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  calc.toggleSign(); // -5
+  calc.inputOp('+');
+  calc.inputDigit('3');
+  const r = calc.evaluate();
+  assertEq(r.result, '-2', '-5+3=-2');
+}
+
+// ========================================
+// CalculatorEngine — history max cap
+// ========================================
+section('CalculatorEngine — history cap');
+
+{
+  const calc = new CalculatorEngine();
+  for (let i = 0; i < 55; i++) {
+    calc.inputDigit(String(i % 10));
+    calc.evaluate();
+  }
+  assertEq(calc.getHistory().length, 50, 'history capped at 50');
+  // First entries should have been evicted
+  assertEq(calc.getHistory()[0].result, '5', 'oldest entry is 5th calculation');
+}
+
+// ========================================
+// CalculatorEngine — scientificFn saves history
+// ========================================
+section('CalculatorEngine — sci fn history');
+
+{
+  const calc = new CalculatorEngine();
+  calc.clearHistory();
+  calc.inputDigit('4');
+  calc.scientificFn('square');
+  assertEq(calc.getHistory().length, 1, 'sci fn adds to history');
+  assertEq(calc.getHistory()[0].result, '16', 'sci fn result in history');
+  assert(calc.getHistory()[0].expression.includes('square'), 'sci fn name in expression');
+}
+
+// ========================================
+// CalculatorEngine — clear after error
+// ========================================
+section('CalculatorEngine — clear after error');
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  calc.inputOp('/');
+  calc.inputDigit('0');
+  const r = calc.evaluate();
+  assert(r.error, 'got error');
+
+  // Clear should fully reset
+  const v = calc.clear();
+  assertEq(v.display, '0', 'display reset after error+clear');
+  assertEq(v.expression, '', 'expression reset after error+clear');
+
+  // Should be able to calculate again
+  calc.inputDigit('3');
+  calc.inputOp('+');
+  calc.inputDigit('2');
+  const r2 = calc.evaluate();
+  assertEq(r2.result, '5', 'works after error+clear');
+}
+
+// ========================================
+// CalculatorEngine — backspace edge cases
+// ========================================
+section('CalculatorEngine — backspace edge cases');
+
+{
+  const calc = new CalculatorEngine();
+  // Backspace on initial '0' stays '0'
+  calc.backspace();
+  assertEq(calc._view().display, '0', 'backspace on 0 stays 0');
+}
+
+{
+  const calc = new CalculatorEngine();
+  calc.inputDigit('5');
+  calc.inputDot();
+  calc.backspace(); // removes dot
+  assertEq(calc._view().display, '5', 'backspace removes dot');
+}
+
+// ========================================
+// CalculatorEngine — evaluate empty
+// ========================================
+section('CalculatorEngine — evaluate empty/zero');
+
+{
+  const calc = new CalculatorEngine();
+  // Fresh calc, press = (display is '0', expression is '')
+  const r = calc.evaluate();
+  assertEq(r.result, '0', 'eval on fresh state returns 0');
+  assert(!r.error, 'no error');
+}
+
+// ========================================
 // Summary
 // ========================================
 console.log(`\n========================================`);

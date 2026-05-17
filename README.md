@@ -6,7 +6,7 @@ A wildly unconventional calculator where **each theme is a completely different 
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)](https://tauri.app/)
 [![PixiJS](https://img.shields.io/badge/PixiJS-7.3-e72264.svg)](https://pixijs.com/)
-[![Tests](https://img.shields.io/badge/tests-194%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-254%20passing-brightgreen.svg)](#testing)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#getting-started)
 
 ---
@@ -97,7 +97,7 @@ src-tauri/
   tauri.conf.json
 
 tests/
-  engine.test.js      120 unit tests for the JS calculator engine
+  engine.test.js      180 unit tests for the JS calculator engine
 ```
 
 ### How Themes Work
@@ -125,13 +125,13 @@ The base class handles engine integration, audio, and helper animations (`tween`
 
 ## Testing
 
-### JavaScript (120 tests)
+### JavaScript (180 tests)
 
 ```bash
 node tests/engine.test.js
 ```
 
-Covers: expression evaluator, number formatting, scientific functions, constants, full calculator state machine (chaining, trailing operators, sign toggle, decimal input, history, error handling).
+Covers: tokenizer, expression evaluator (precedence, parens, unary, edge cases), number formatting, scientific functions, constants, full calculator state machine (chaining, trailing operators, repeated equals, parentheses, sign toggle, decimal input, multi-digit, negative numbers, history cap, error recovery, backspace edge cases).
 
 ### Rust (74 tests)
 
