@@ -1,19 +1,19 @@
 # Fun Calc 🎮
 
-A wildly unconventional calculator built with **Rust + Tauri** and vanilla JS. Eight themed calculators — each with unique animations, physics, and personality.
+A wildly unconventional calculator where **each theme is a completely different experience** — not a reskin, but a unique visual world rendered on canvas with [PixiJS](https://pixijs.com/). Built with **Rust + Tauri** backend and vanilla JS.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8.svg)](https://tauri.app/)
+[![PixiJS](https://img.shields.io/badge/PixiJS-7.3-e72264.svg)](https://pixijs.com/)
 [![Tests](https://img.shields.io/badge/tests-194%20passing-brightgreen.svg)](#testing)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#getting-started)
-[![JS](https://img.shields.io/badge/JS-Vanilla%20ES6-F7DF1E.svg)](src/)
 
 ---
 
 ## Screenshots
 
-<!-- Add your screenshots here -->
+<!-- Add your screenshots here. Drop PNGs into docs/screenshots/ -->
 <p align="center">
   <img src="docs/screenshots/menu.png" alt="Theme Select Menu" width="400" />
 </p>
@@ -23,12 +23,7 @@ A wildly unconventional calculator built with **Rust + Tauri** and vanilla JS. E
 
 | Theme | Preview |
 |---|---|
-| Retro Arcade | <img src="docs/screenshots/retro.png" width="300" /> |
-| Destruction | <img src="docs/screenshots/destruction.png" width="300" /> |
-| Living Creature | <img src="docs/screenshots/living.png" width="300" /> |
-| Rube Goldberg | <img src="docs/screenshots/rube.png" width="300" /> |
-| Gravity | <img src="docs/screenshots/gravity.png" width="300" /> |
-| RPG Battle | <img src="docs/screenshots/rpg.png" width="300" /> |
+| Matrix | <img src="docs/screenshots/matrix.png" width="300" /> |
 | Odontology | <img src="docs/screenshots/odonto.png" width="300" /> |
 | Dragon | <img src="docs/screenshots/dragon.png" width="300" /> |
 
@@ -38,18 +33,13 @@ A wildly unconventional calculator built with **Rust + Tauri** and vanilla JS. E
 
 ## Themes
 
-| # | Theme | What Makes It Special |
-|---|---|---|
-| 1 | **Retro Arcade** 👾 | CRT scanlines, pixel fonts, 8-bit sounds, confetti on big numbers |
-| 2 | **Destruction** 💥 | Buttons shatter and explode when used. AC rebuilds them |
-| 3 | **Living Creature** 🐸 | Eyes follow clicks, mouth chews numbers, bounces on results, turns sick on errors |
-| 4 | **Rube Goldberg** ⚙️ | Numbers fall through gears and funnels before the result pops out |
-| 5 | **Gravity** 🌍 | Digits fall with physics, = causes shockwave collision |
-| 6 | **RPG Battle** ⚔️ | Operators are attacks, earn XP, level up, slash animations |
-| 7 | **Odontology** 🦷 | Clean clinical theme, drill animations, sparkles on results, "CAVITY!" on errors |
-| 8 | **Dragon** 🐉 | Fire particles, ember glow, fire-breath on =, dragon flyby on big results |
+Every theme is a **full PixiJS canvas application** — its own UI, its own interaction model, its own visual language. They share only the math engine.
 
-All themes share the same full-featured calculator engine (basic + scientific + history).
+| Theme | How It Works |
+|---|---|
+| **Matrix** 🟢 | Rain columns of green digits fill the screen. Click a digit and the column **freezes** — the character pops out and **flies to the display**. Operators flash red like a system glitch. Press `=` and all rain accelerates, freezes white, then the answer types out character by character. |
+| **Odontology** 🦷 | An **open mouth** with gums, lips, and tongue. Upper teeth are digit buttons (molars, canines, incisors — shaped like real teeth). Lower teeth are operators. Click a tooth and it **vibrates with drill sparks**. Results appear on an **X-ray light panel**. Errors cause **cavities** — teeth darken and crack. AC triggers a polish sweep. |
+| **Dragon** 🐉 | A dark cave with a **dragon's treasure hoard**. Gold coins have numbers embossed on them — click one and it **flips** and flies to the display. Operators are **glowing rune stones**. A **cauldron** sits in the center — press it to brew your calculation. Fire **erupts from the cauldron** on equals. Big results trigger a **dragon flyby** across the screen leaving a fire trail. |
 
 ---
 
@@ -62,6 +52,8 @@ cd src
 python3 -m http.server 1420
 # Open http://localhost:1420
 ```
+
+Requires internet for PixiJS CDN on first load.
 
 ### Desktop App (Rust + Tauri)
 
@@ -85,35 +77,49 @@ cargo tauri build
 
 ```
 src/
-  index.html         Single-page app with menu + calculator
-  engine.js          Calculator engine (pure logic, no DOM) — State Machine pattern
-  audio.js           Web Audio API sound effects — Encapsulation
-  particles.js       Canvas particle system — Observer pattern
-  easter-eggs.js     Fun effect triggers — Strategy pattern
-  themes.js          8 theme definitions — Strategy pattern (ThemeRegistry)
-  app.js             Thin UI layer wiring everything — Mediator pattern
-  style.css          Base styles + menu + theme overrides
+  index.html          Menu + canvas container (minimal HTML)
+  engine.js           Calculator engine — pure math logic, no DOM (State Machine)
+  audio.js            Web Audio API sound effects
+  pixi-base.js        PixiTheme base class — shared engine wiring (Strategy)
+  theme-matrix.js     Matrix theme — rain, flying digits, cascade
+  theme-odonto.js     Odontology theme — mouth, teeth, drill sparks, X-ray
+  theme-dragon.js     Dragon theme — coins, runes, cauldron, fire
+  app.js              Menu rendering + theme lifecycle (Mediator)
+  style.css           Menu styles only (themes render on canvas)
 
 src-tauri/
   src/
-    main.rs          Tauri app bootstrap
-    engine.rs        Math formatting, scientific functions, constants
-    parser.rs        Tokenizer + recursive-descent expression evaluator
-    commands.rs      Tauri command handlers (thin wrappers)
-  Cargo.toml         Rust dependencies
-  tauri.conf.json    Tauri window/app configuration
+    main.rs           Tauri app bootstrap
+    engine.rs         Formatting, scientific functions, constants (48 tests)
+    parser.rs         Tokenizer + recursive-descent evaluator (26 tests)
+    commands.rs       Tauri command handlers (thin wrappers)
+  Cargo.toml
+  tauri.conf.json
 
 tests/
-  engine.test.js     120 JS unit tests for the calculator engine
+  engine.test.js      120 unit tests for the JS calculator engine
 ```
 
-### Design Patterns Used
+### How Themes Work
+
+Each theme extends `PixiTheme` and implements 5 methods:
+
+| Method | Purpose |
+|---|---|
+| `_buildScene()` | Creates all PixiJS display objects (the entire UI) |
+| `_updateDisplay(expr, display)` | Renders the current expression and result |
+| `_onResult(result)` | Animates a successful calculation |
+| `_onError(message)` | Animates an error |
+| `_onClear()` | Animates a reset |
+
+The base class handles engine integration, audio, and helper animations (`tween`, `flyTo`). Themes handle their own click events and call `this.digit()`, `this.op()`, `this.equals()`, etc.
+
+### Design Patterns
 
 - **State Machine** — Calculator engine alternates between INPUT and RESULT phases
-- **Strategy** — Each theme implements the same interface with different behavior
-- **Mediator** — `app.js` coordinates engine, audio, particles, themes, and DOM
-- **Observer** — Particle system reacts to events from the UI
-- **Registry** — `ThemeRegistry` stores and retrieves themes by ID
+- **Strategy** — Each theme implements the same interface with completely different rendering
+- **Mediator** — `app.js` coordinates menu, theme lifecycle, and keyboard events
+- **Template Method** — `PixiTheme` defines the skeleton; subclasses fill in the specifics
 
 ---
 
@@ -125,7 +131,7 @@ tests/
 node tests/engine.test.js
 ```
 
-Covers: expression evaluator, number formatting, scientific functions, constants, calculator state machine (chaining, trailing operators, sign toggle, history, etc.)
+Covers: expression evaluator, number formatting, scientific functions, constants, full calculator state machine (chaining, trailing operators, sign toggle, decimal input, history, error handling).
 
 ### Rust (74 tests)
 
@@ -133,18 +139,18 @@ Covers: expression evaluator, number formatting, scientific functions, constants
 cd src-tauri
 cargo test
 
-# Or run modules standalone:
+# Or run modules standalone (no network needed):
 rustc --edition 2021 src/parser.rs --test -o /tmp/parser_test && /tmp/parser_test
 rustc --edition 2021 src/engine.rs --test -o /tmp/engine_test && /tmp/engine_test
 ```
 
-Covers: tokenizer, recursive-descent parser, operator precedence, parentheses, scientific functions, domain errors, formatting edge cases.
+Covers: tokenizer, recursive-descent parser, operator precedence, parentheses, scientific functions, domain errors, number formatting edge cases.
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding new themes.
 
 ## Security
 
@@ -156,4 +162,4 @@ See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](LICENSE) — do whatever you want with it.
+[MIT](LICENSE)

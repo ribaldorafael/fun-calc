@@ -18,7 +18,10 @@ Thanks for your interest in contributing! Here's how to get started.
 
 ```bash
 cd src && python3 -m http.server 1420
+# Open http://localhost:1420
 ```
+
+Requires internet for PixiJS CDN on first load.
 
 ### Tauri desktop mode
 
@@ -28,42 +31,76 @@ cd src-tauri && cargo tauri dev
 
 ## What to Contribute
 
-- **New themes** — Create a new calculator theme in `themes.js`
-- **Easter eggs** — Add fun surprises in `easter-eggs.js`
-- **Bug fixes** — Check the Issues tab
-- **Scientific functions** — Add more math functions to the engine
-- **Animations** — Make existing themes more expressive
+- **New themes** — each theme is a full PixiJS canvas scene (see below)
+- **Bug fixes** — check the Issues tab
+- **Scientific functions** — add more math functions to `engine.js` + `engine.rs`
+- **Theme improvements** — better animations, particle effects, interactions
 
 ## Adding a New Theme
 
-1. Add your theme class in `src/themes.js`
-2. Register it with `ThemeRegistry.register('your-id', { ... })`
-3. Implement the theme interface: `activate`, `deactivate`, `onDigit`, `onOperator`, `onEquals`, `onError`, `onClear`, `onIdle`, `getOverlayHTML`
-4. Add CSS via `injectCSS()` inside `activate()`
+Each theme is a **separate PixiJS application** that renders its own complete UI on canvas — not a CSS reskin.
+
+1. Create `src/theme-yourname.js`
+2. Extend `PixiTheme` and implement 5 methods:
+
+```js
+class YourTheme extends PixiTheme {
+  _buildScene() {
+    // Create all PIXI display objects: background, buttons, display area.
+    // Set up click handlers that call this.digit(), this.op(), this.equals(), etc.
+  }
+
+  _updateDisplay(expr, display) {
+    // Render the expression and current number/result on screen.
+  }
+
+  _onResult(result) {
+    // Animate a successful calculation (fire, explosions, confetti, etc.)
+  }
+
+  _onError(message) {
+    // Animate an error (shake, flash, crack, etc.)
+  }
+
+  _onClear() {
+    // Animate a reset (rebuild, polish, fade, etc.)
+  }
+}
+```
+
+3. Add a `<script>` tag in `index.html` (before `app.js`)
+4. Register the theme in `app.js` in the `themes` array:
+
+```js
+{
+  id: 'yourname',
+  name: 'Your Theme',
+  icon: '🎨',
+  description: 'What makes it unique.',
+  color: '#ff00ff',
+  ThemeClass: YourTheme,
+}
+```
+
+### Theme Design Guidelines
+
+- **Unique interaction model** — don't just restyle a button grid. Rethink how the user inputs numbers.
+- **Meaningful animations** — every action (digit, operator, equals, error, clear) should have a distinct visual response.
+- **Usable** — it still needs to work as a calculator. Don't sacrifice usability for aesthetics.
+- **Self-contained** — all rendering happens on the PixiJS canvas. No external HTML/CSS needed.
 
 ## Code Style
 
-- Vanilla JS only — no frameworks, no bundlers
-- Keep functions small and focused
-- Pure logic in `engine.js` — no DOM access
-- Side effects (DOM, audio, canvas) in `app.js` and theme files
+- Vanilla JS, no frameworks, no bundlers
+- Pure logic in `engine.js` — no DOM or PixiJS access
+- Each theme file is self-contained with its own class
 - Run tests before submitting PRs
 
 ## Testing
 
-- Add unit tests for any new engine logic in `tests/engine.test.js`
-- Add Rust tests as `#[cfg(test)] mod tests` in the relevant module
+- Engine logic: add tests in `tests/engine.test.js`
+- Rust modules: add tests as `#[cfg(test)] mod tests` blocks
 - All tests must pass before merging
-
-## Commit Messages
-
-Use clear, descriptive commit messages:
-
-```
-Add dragon theme with fire-breath animation
-Fix trailing operator bug in expression evaluator
-Add factorial tests for edge cases
-```
 
 ## Code of Conduct
 
