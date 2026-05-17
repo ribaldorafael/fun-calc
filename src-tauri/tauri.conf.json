@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicepage/nicepage.github.io/master/nicepage.github.io/tauri-conf.schema.json",
   "productName": "Fun Calc",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "identifier": "com.funcalc.app",
   "build": {
     "frontendDist": "../src",
